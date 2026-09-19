@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>ЖЕЛЕЗО — тренировки с гантелями</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#17181a">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17181a;
+    --bg-elev:#1f2123;
+    --bg-card:#232527;
+    --line:#34363a;
+    --text:#f2efea;
+    --text-dim:#9a9a96;
+    --accent:#f2b705;
+    --accent-ink:#1a1500;
+    --pro:#c6402b;
+    --pro-ink:#fff4f1;
+    --radius:6px;
+  }
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#f4f2ee;
+      --bg-elev:#ffffff;
+      --bg-card:#ffffff;
+      --line:#e0ddd6;
+      --text:#1a1a1a;
+      --text-dim:#6b6b66;
+      --accent-ink:#1a1500;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f2ee;
+    --bg-elev:#ffffff;
+    --bg-card:#ffffff;
+    --line:#e0ddd6;
+    --text:#1a1a1a;
+    --text-dim:#6b6b66;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1,h2,h3{font-family:'Oswald',sans-serif;margin:0;letter-spacing:.2px;}
+
+  #app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+
+  header.top{
+    padding:22px 20px 14px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:1px solid var(--line);
+  }
+  header.top h1{font-size:22px;font-weight:700;}
+  header.top h1 span{color:var(--accent);}
+  header.top .tag{font-size:12px;color:var(--text-dim);}
+
+  main{flex:1;overflow-x:hidden;padding:18px 18px 90px;}
+
+  /* ---- Chips / onboarding ---- */
+  .step-label{font-size:13px;color:var(--text-dim);margin:22px 0 10px;}
+  .step-label:first-child{margin-top:4px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    border:1px solid var(--line);
+    background:var(--bg-elev);
+    color:var(--text);
+    padding:9px 14px;
+    border-radius:var(--radius);
+    font-size:14px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+  }
+  .chip.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:var(--accent-ink);
+    font-weight:600;
+  }
+
+  .btn-primary{
+    width:100%;
+    margin-top:26px;
+    padding:14px;
+    background:var(--accent);
+    color:var(--accent-ink);
+    border:none;
+    border-radius:var(--radius);
+    font-family:'Oswald',sans-serif;
+    font-size:16px;
+    font-weight:600;
+    letter-spacing:.3px;
+    cursor:pointer;
+  }
+  .btn-primary:disabled{opacity:.4;}
+  .btn-ghost{
+    width:100%;
+    margin-top:10px;
+    padding:12px;
+    background:transparent;
+    color:var(--text-dim);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    cursor:pointer;
+  }
+
+  /* ---- Exercise cards ---- */
+  .plan-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;}
+  .plan-head h2{font-size:20px;}
+  .plan-head .meta{font-size:12px;color:var(--text-dim);}
+
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px;
+    margin-bottom:12px;
+    display:flex;
+    gap:14px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card .icon{
+    width:56px;height:56px;flex:none;
+    background:var(--bg-elev);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .dumbbell{width:34px;height:34px;transform-origin:50% 50%;animation:curl 1.4s ease-in-out infinite alternate;}
+  @keyframes curl{
+    0%{transform:rotate(-18deg) translateY(2px);}
+    100%{transform:rotate(18deg) translateY(-2px);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .dumbbell{animation:none;}
+  }
+  .card .body{flex:1;min-width:0;}
+  .card .body h3{font-size:15px;font-weight:600;font-family:'Inter',sans-serif;}
+  .card .muscle{font-size:11px;color:var(--accent);text-transform:none;margin-top:2px;}
+  .card .scheme{font-size:13px;color:var(--text-dim);margin-top:6px;}
+
+  .card.locked .body h3, .card.locked .scheme{filter:blur(3px);user-select:none;}
+  .lock-overlay{
+    position:absolute;inset:0;
+    background:rgba(0,0,0,.35);
+    display:flex;align-items:center;justify-content:flex-end;
+    padding-right:14px;
+  }
+  .lock-btn{
+    background:var(--pro);color:var(--pro-ink);
+    border:none;border-radius:var(--radius);
+    padding:7px 12px;font-size:12px;font-weight:600;
+    font-family:'Inter',sans-serif;cursor:pointer;
+    display:flex;align-items:center;gap:5px;
+  }
+
+  .badge-pro{
+    font-size:10px;font-weight:700;color:var(--pro-ink);
+    background:var(--pro);padding:2px 6px;border-radius:3px;
+    margin-left:8px;letter-spacing:.3px;
+  }
+
+  /* ---- Library list ---- */
+  .lib-group{margin-bottom:18px;}
+  .lib-group h3{font-size:13px;color:var(--text-dim);font-family:'Inter',sans-serif;font-weight:600;margin-bottom:8px;}
+  .lib-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:11px 0;border-bottom:1px solid var(--line);
+  }
+  .lib-row .name{font-size:14px;}
+  .lib-row .scheme-mini{font-size:12px;color:var(--text-dim);}
+
+  /* ---- Pro tab ---- */
+  .pro-hero{
+    background:linear-gradient(180deg,var(--bg-elev),var(--bg-card));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 18px;text-align:left;margin-bottom:18px;
+  }
+  .pro-hero h2{font-size:24px;margin-bottom:6px;}
+  .pro-hero p{color:var(--text-dim);font-size:14px;margin:0;}
+  .price-row{display:flex;gap:10px;margin-top:18px;}
+  .price-card{
+    flex:1;border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 12px;background:var(--bg-elev);cursor:pointer;
+  }
+  .price-card.selected{border-color:var(--accent);}
+  .price-card .period{font-size:12px;color:var(--text-dim);}
+  .price-card .price{font-family:'Oswald',sans-serif;font-size:20px;margin:4px 0;}
+  .price-card .save{font-size:11px;color:var(--accent);}
+  .pro-list{list-style:none;padding:0;margin:18px 0 0;}
+  .pro-list li{font-size:14px;padding:8px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;}
+  .pro-list li:before{content:"—";color:var(--accent);}
+
+  .demo-note{
+    font-size:11px;color:var(--text-dim);text-align:center;margin-top:14px;line-height:1.5;
+  }
+
+  /* ---- Bottom nav ---- */
+  nav.bottom{
+    position:sticky;bottom:0;left:0;right:0;
+    background:var(--bg-elev);
+    border-top:1px solid var(--line);
+    display:flex;
+  }
+  nav.bottom button{
+    flex:1;background:none;border:none;color:var(--text-dim);
+    font-family:'Inter',sans-serif;font-size:11px;padding:10px 4px 12px;
+    display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;
+  }
+  nav.bottom button svg{width:20px;height:20px;}
+  nav.bottom button.active{color:var(--accent);}
+
+  .empty{
+    text-align:center;color:var(--text-dim);font-size:14px;padding:40px 10px;
+  }
+
+  /* ---- Modal ---- */
+  .modal-back{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);
+    display:flex;align-items:flex-end;justify-content:center;z-index:50;
+  }
+  .modal{
+    width:100%;max-width:480px;background:var(--bg-elev);
+    border-radius:16px 16px 0 0;padding:22px 20px 28px;
+    border-top:1px solid var(--line);
+  }
+  .modal h2{font-size:20px;margin-bottom:6px;}
+  .modal p{color:var(--text-dim);font-size:14px;margin:0 0 16px;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="top">
+    <div>
+      <h1>ЖЕЛЕЗО<span>.</span></h1>
+      <div class="tag" id="subtitle" style="margin-top:2px;"></div>
+    </div>
+    <div class="tag" id="proStatus">Free</div>
+  </header>
+
+  <main id="main"></main>
+
+  <nav class="bottom">
+    <button data-tab="workout" id="navWorkout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7v10M18 7v10M2 10v4M22 10v4M6 12h12"/></svg>
+      Тренировка
+    </button>
+    <button data-tab="library" id="navLibrary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Библиотека
+    </button>
+    <button data-tab="pro" id="navPro">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/></svg>
+      Pro
+    </button>
+  </nav>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Telegram Mini App init (no-op outside Telegram)
+  try {
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+  } catch(e) {}
+
+  // PWA install support (no-op if hosting blocks service workers, e.g. this chat preview)
+  try {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    }
+  } catch(e) {}
+
+  // Quick niche variants via ?niche=home | gym | fatloss — same code, different landing product
+  var NICHE_PRESETS = {
+    home:    { title:'ЖЕЛЕЗО: Дома',    location:'home', subtitle:'Тренировки с гантелями дома' },
+    gym:     { title:'ЖЕЛЕЗО: Зал',     location:'gym',  subtitle:'Программы для зала' },
+    fatloss: { title:'ЖЕЛЕЗО: Похудение', goal:'fatloss', subtitle:'Жиросжигание с гантелями' }
+  };
+  var niche = null;
+  try {
+    var nicheId = new URLSearchParams(window.location.search).get('niche');
+    if (nicheId && NICHE_PRESETS[nicheId]) niche = NICHE_PRESETS[nicheId];
+  } catch(e) {}
+  if (niche) document.title = niche.title;
+
+  // ---------- data ----------
+  var EXERCISES = [
+    {id:'bicep_curl', name:'Подъём гантелей на бицепс', muscle:'Руки', level:1, tier:'free', sets:'3×12', goals:['mass','tone'], location:'both'},
+    {id:'hammer_curl', name:'Молотки', muscle:'Руки', level:1, tier:'pro', sets:'3×12', goals:['mass'], location:'both'},
+    {id:'tricep_ext', name:'Разгибание на трицепс из-за головы', muscle:'Руки', level:1, tier:'free', sets:'3×12', goals:['tone','mass'], location:'both'},
+    {id:'shoulder_press', name:'Жим гантелей сидя', muscle:'Плечи', level:2, tier:'free', sets:'3×10', goals:['strength','mass'], location:'both'},
+    {id:'lateral_raise', name:'Разведение гантелей в стороны', muscle:'Плечи', level:1, tier:'pro', sets:'3×15', goals:['tone'], location:'both'},
+    {id:'bent_row', name:'Тяга гантели в наклоне', muscle:'Спина', level:2, tier:'free', sets:'3×10', goals:['strength','mass'], location:'both'},
+    {id:'renegade_row', name:'Тяга Renegade row', muscle:'Спина / Кор', level:3, tier:'pro', sets:'3×8', goals:['strength'], location:'both'},
+    {id:'db_press', name:'Жим гантелей лёжа', muscle:'Грудь', level:2, tier:'pro', sets:'3×10', goals:['mass','strength'], location:'both'},
+    {id:'db_fly', name:'Разведение гантелей лёжа', muscle:'Грудь', level:2, tier:'pro', sets:'3×12', goals:['tone'], location:'both'},
+    {id:'goblet_squat', name:'Гоблет-присед', muscle:'Ноги', level:1, tier:'free', sets:'3×15', goals:['fatloss','tone','strength'], location:'both'},
+    {id:'lunges', name:'Выпады с гантелями', muscle:'Ноги', level:1, tier:'free', sets:'3×12 на ногу', goals:['fatloss','tone'], location:'both'},
+    {id:'rdl', name:'Румынская тяга', muscle:'Ноги / Ягодицы', level:2, tier:'pro', sets:'3×10', goals:['strength','mass'], location:'both'},
+    {id:'step_up', name:'Зашагивания на платформу', muscle:'Ноги', level:1, tier:'pro', sets:'3×12', goals:['fatloss'], location:'both'},
+    {id:'russian_twist', name:'Русский твист с гантелей', muscle:'Кор', level:1, tier:'free', sets:'3×20', goals:['fatloss','tone'], location:'both'},
+    {id:'woodchopper', name:'Дровосек', muscle:'Кор', level:2, tier:'pro', sets:'3×12', goals:['tone'], location:'both'},
+    {id:'farmer_carry', name:'Фермерская прогулка', muscle:'Кор / Хват', level:1, tier:'free', sets:'3×40 м', goals:['fatloss','strength'], location:'both'},
+    {id:'barbell_squat', name:'Присед со штангой', muscle:'Ноги', level:2, tier:'free', sets:'4×8', goals:['strength','mass'], location:'gym'},
+    {id:'bench_press', name:'Жим штанги лёжа', muscle:'Грудь', level:2, tier:'free', sets:'4×8', goals:['strength','mass'], location:'gym'},
+    {id:'deadlift', name:'Становая тяга', muscle:'Спина / Ноги', level:3, tier:'pro', sets:'4×6', goals:['strength','mass'], location:'gym'},
+    {id:'lat_pulldown', name:'Тяга верхнего блока', muscle:'Спина', level:1, tier:'free', sets:'3×12', goals:['mass','tone'], location:'gym'},
+    {id:'leg_press', name:'Жим ногами в тренажёре', muscle:'Ноги', level:1, tier:'pro', sets:'3×12', goals:['mass','fatloss'], location:'gym'},
+    {id:'cable_row', name:'Тяга нижнего блока', muscle:'Спина', level:1, tier:'pro', sets:'3×12', goals:['strength','tone'], location:'gym'},
+    {id:'leg_curl', name:'Сгибание ног в тренажёре', muscle:'Ноги', level:1, tier:'free', sets:'3×15', goals:['tone','fatloss'], location:'gym'},
+    {id:'chest_press_machine', name:'Жим в тренажёре на грудь', muscle:'Грудь', level:1, tier:'pro', sets:'3×12', goals:['mass','tone'], location:'gym'}
+  ];
+
+  var LOCATIONS = [
+    {id:'home', label:'Дома'},
+    {id:'gym', label:'В зале'}
+  ];
+  var GOALS = [
+    {id:'strength', label:'Сила'},
+    {id:'mass', label:'Масса'},
+    {id:'fatloss', label:'Похудение'},
+    {id:'tone', label:'Тонус'}
+  ];
+  var LEVELS = [
+    {id:1, label:'Новичок'},
+    {id:2, label:'Средний'},
+    {id:3, label:'Продвинутый'}
+  ];
+  var DURATIONS = [
+    {id:15, label:'15 мин', count:4},
+    {id:30, label:'30 мин', count:6},
+    {id:45, label:'45 мин', count:8}
+  ];
+
+  // ---------- state ----------
+  var state = {
+    tab: 'workout',
+    location: null,
+    goal: null,
+    level: null,
+    duration: null,
+    plan: null,
+    isPro: false,
+    priceCycle: 'monthly'
+  };
+
+  try {
+    var saved = JSON.parse(localStorage.getItem('ironapp_state') || 'null');
+    if (saved) {
+      state.location = saved.location || null;
+      state.goal = saved.goal || null;
+      state.level = saved.level || null;
+      state.duration = saved.duration || null;
+      state.isPro = !!saved.isPro;
+    }
+  } catch(e) {}
+
+  if (niche) {
+    if (niche.location) state.location = niche.location;
+    if (niche.goal) state.goal = niche.goal;
+  }
+
+  function persist(){
+    try {
+      localStorage.setItem('ironapp_state', JSON.stringify({
+        location: state.location, goal: state.goal, level: state.level, duration: state.duration, isPro: state.isPro
+      }));
+    } catch(e) {}
+  }
+
+  function dumbbellSvg(){
+    return '<svg class="dumbbell" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" style="color:var(--accent)">'+
+      '<rect x="4" y="15" width="7" height="10" rx="1.5" fill="currentColor" stroke="none"/>'+
+      '<rect x="29" y="15" width="7" height="10" rx="1.5" fill="currentColor" stroke="none"/>'+
+      '<line x1="11" y1="20" x2="29" y2="20"/>'+
+      '</svg>';
+  }
+
+  function generatePlan(){
+    var pool = EXERCISES.filter(function(ex){
+      var fitsLocation = ex.location === 'both' || ex.location === state.location;
+      return fitsLocation && ex.goals.indexOf(state.goal) !== -1 && ex.level <= state.level;
+    });
+    // spread across muscle groups: sort by muscle then interleave
+    var byMuscle = {};
+    pool.forEach(function(ex){
+      byMuscle[ex.muscle] = byMuscle[ex.muscle] || [];
+      byMuscle[ex.muscle].push(ex);
+    });
+    var muscles = Object.keys(byMuscle);
+    var result = [];
+    var count = (DURATIONS.filter(function(d){return d.id===state.duration;})[0] || DURATIONS[1]).count;
+    var i = 0;
+    while (result.length < count && muscles.some(function(m){return byMuscle[m].length;})) {
+      var m = muscles[i % muscles.length];
+      if (byMuscle[m].length) result.push(byMuscle[m].shift());
+      i++;
+    }
+    return result;
+  }
+
+  // ---------- render ----------
+  function render(){
+    document.getElementById('proStatus').textContent = state.isPro ? 'Pro' : 'Free';
+    document.getElementById('subtitle').textContent = niche ? niche.subtitle : 'дом и зал';
+    ['navWorkout','navLibrary','navPro'].forEach(function(id){
+      document.getElementById(id).classList.remove('active');
+    });
+    document.getElementById('nav' + state.tab.charAt(0).toUpperCase() + state.tab.slice(1)).classList.add('active');
+
+    var main = document.getElementById('main');
+    if (state.tab === 'workout') main.innerHTML = renderWorkoutTab();
+    else if (state.tab === 'library') main.innerHTML = renderLibraryTab();
+    else main.innerHTML = renderProTab();
+
+    bindEvents();
+  }
+
+  function renderWorkoutTab(){
+    if (!state.plan) {
+      return ''
+      + '<div class="step-label">Где тренируетесь</div>'
+      + '<div class="chips" data-group="location">'
+        + LOCATIONS.map(function(l){ return chip(l.id, l.label, state.location); }).join('')
+      + '</div>'
+      + '<div class="step-label">Цель</div>'
+      + '<div class="chips" data-group="goal">'
+        + GOALS.map(function(g){ return chip(g.id, g.label, state.goal); }).join('')
+      + '</div>'
+      + '<div class="step-label">Уровень</div>'
+      + '<div class="chips" data-group="level">'
+        + LEVELS.map(function(l){ return chip(l.id, l.label, state.level); }).join('')
+      + '</div>'
+      + '<div class="step-label">Время на тренировку</div>'
+      + '<div class="chips" data-group="duration">'
+        + DURATIONS.map(function(d){ return chip(d.id, d.label, state.duration); }).join('')
+      + '</div>'
+      + '<button class="btn-primary" id="genBtn" '+(canGenerate()?'':'disabled')+'>Составить тренировку</button>';
+    }
+    var lockedInPlan = state.plan.some(function(ex){ return ex.tier==='pro' && !state.isPro; });
+    return ''
+    + '<div class="plan-head"><h2>Ваша тренировка</h2><span class="meta">'+state.plan.length+' упражнений</span></div>'
+    + state.plan.map(renderCard).join('')
+    + (lockedInPlan ? '<button class="btn-primary" id="unlockAllBtn">Открыть все упражнения — Pro</button>' : '')
+    + '<button class="btn-ghost" id="regenBtn">Составить заново</button>';
+  }
+
+  function chip(id, label, current){
+    return '<button class="chip'+(current===id?' active':'')+'" data-id="'+id+'">'+label+'</button>';
+  }
+
+  function canGenerate(){
+    return state.location && state.goal && state.level && state.duration;
+  }
+
+  function renderCard(ex){
+    var locked = ex.tier === 'pro' && !state.isPro;
+    return ''
+    + '<div class="card'+(locked?' locked':'')+'">'
+      + '<div class="icon">'+dumbbellSvg()+'</div>'
+      + '<div class="body">'
+        + '<h3>'+ex.name+(ex.tier==='pro'?'<span class="badge-pro">PRO</span>':'')+'</h3>'
+        + '<div class="muscle">'+ex.muscle+'</div>'
+        + '<div class="scheme">'+ex.sets+'</div>'
+      + '</div>'
+      + (locked ? '<div class="lock-overlay"><button class="lock-btn" data-open-pro="1">🔒 Открыть</button></div>' : '')
+    + '</div>';
+  }
+
+  function renderLibraryTab(){
+    var byMuscle = {};
+    EXERCISES.forEach(function(ex){
+      byMuscle[ex.muscle] = byMuscle[ex.muscle] || [];
+      byMuscle[ex.muscle].push(ex);
+    });
+    return Object.keys(byMuscle).map(function(m){
+      return '<div class="lib-group"><h3>'+m+'</h3>'
+        + byMuscle[m].map(function(ex){
+          return '<div class="lib-row">'
+            + '<div><div class="name">'+ex.name+(ex.tier==='pro'?'<span class="badge-pro">PRO</span>':'')+'</div></div>'
+            + '<div class="scheme-mini">'+ex.sets+'</div>'
+          + '</div>';
+        }).join('')
+      + '</div>';
+    }).join('');
+  }
+
+  function renderProTab(){
+    if (state.isPro) {
+      return '<div class="pro-hero"><h2>Вы на Pro</h2><p>Вся библиотека упражнений и программы открыты.</p></div>'
+        + '<button class="btn-ghost" id="cancelProBtn">Отменить Pro (демо)</button>';
+    }
+    return ''
+    + '<div class="pro-hero">'
+      + '<h2>Полный доступ</h2>'
+      + '<p>Все упражнения, безлимитные программы под любую цель.</p>'
+    + '</div>'
+    + '<div class="price-row">'
+      + '<div class="price-card'+(state.priceCycle==='monthly'?' selected':'')+'" data-cycle="monthly">'
+        + '<div class="period">Помесячно</div><div class="price">499 ₸/мес</div>'
+      + '</div>'
+      + '<div class="price-card'+(state.priceCycle==='yearly'?' selected':'')+'" data-cycle="yearly">'
+        + '<div class="period">На год</div><div class="price">3990 ₸/год</div><div class="save">Экономия 33%</div>'
+      + '</div>'
+    + '</div>'
+    + '<ul class="pro-list">'
+      + '<li>Все PRO-упражнения библиотеки</li>'
+      + '<li>Безлимитные программы под любую цель</li>'
+      + '<li>Без ограничений по продолжительности тренировки</li>'
+    + '</ul>'
+    + '<button class="btn-primary" id="subscribeBtn">Оформить Pro</button>'
+    + '<div class="demo-note">Демо-версия: оплата не подключена. Здесь позже будет Google Play Billing.</div>';
+  }
+
+  function bindEvents(){
+    document.querySelectorAll('.chips').forEach(function(group){
+      group.addEventListener('click', function(e){
+        var btn = e.target.closest('.chip');
+        if (!btn) return;
+        var g = group.getAttribute('data-group');
+        var val = btn.getAttribute('data-id');
+        state[g] = (g === 'level' || g === 'duration') ? Number(val) : val;
+        persist();
+        render();
+      });
+    });
+    var genBtn = document.getElementById('genBtn');
+    if (genBtn) genBtn.addEventListener('click', function(){
+      state.plan = generatePlan();
+      render();
+    });
+    var regenBtn = document.getElementById('regenBtn');
+    if (regenBtn) regenBtn.addEventListener('click', function(){
+      state.plan = null;
+      render();
+    });
+    var unlockAllBtn = document.getElementById('unlockAllBtn');
+    if (unlockAllBtn) unlockAllBtn.addEventListener('click', openPaywall);
+    document.querySelectorAll('[data-open-pro]').forEach(function(b){
+      b.addEventListener('click', openPaywall);
+    });
+    var subscribeBtn = document.getElementById('subscribeBtn');
+    if (subscribeBtn) subscribeBtn.addEventListener('click', function(){
+      state.isPro = true;
+      persist();
+      closePaywall();
+      render();
+    });
+    var cancelProBtn = document.getElementById('cancelProBtn');
+    if (cancelProBtn) cancelProBtn.addEventListener('click', function(){
+      state.isPro = false;
+      persist();
+      render();
+    });
+    document.querySelectorAll('.price-card').forEach(function(c){
+      c.addEventListener('click', function(){
+        state.priceCycle = c.getAttribute('data-cycle');
+        render();
+      });
+    });
+  }
+
+  function openPaywall(){
+    var back = document.createElement('div');
+    back.className = 'modal-back';
+    back.id = 'paywallModal';
+    back.innerHTML = '<div class="modal">'
+      + '<h2>Это упражнение — в Pro</h2>'
+      + '<p>Откройте всю библиотеку и безлимитные программы.</p>'
+      + '<button class="btn-primary" id="paywallSubscribe">Оформить Pro — 499 ₸/мес</button>'
+      + '<button class="btn-ghost" id="paywallClose">Не сейчас</button>'
+    + '</div>';
+    document.getElementById('app').appendChild(back);
+    document.getElementById('paywallSubscribe').addEventListener('click', function(){
+      state.isPro = true;
+      persist();
+      closePaywall();
+      render();
+    });
+    document.getElementById('paywallClose').addEventListener('click', closePaywall);
+  }
+  function closePaywall(){
+    var m = document.getElementById('paywallModal');
+    if (m) m.remove();
+  }
+
+  document.querySelectorAll('nav.bottom button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      state.tab = btn.getAttribute('data-tab');
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
