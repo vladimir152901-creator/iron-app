@@ -193,11 +193,21 @@
   .lib-group{margin-bottom:18px;}
   .lib-group h3{font-size:13px;color:var(--text-dim);font-family:'Inter',sans-serif;font-weight:600;margin-bottom:8px;}
   .lib-row{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:11px 0;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;
+    padding:10px 0;border-bottom:1px solid var(--line);
   }
+  .icon-sm{
+    width:44px;height:44px;flex:none;
+    background:var(--bg-elev);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .icon-sm .dumbbell{width:26px;height:26px;}
+  .lib-info{flex:1;min-width:0;}
   .lib-row .name{font-size:14px;}
-  .lib-row .scheme-mini{font-size:12px;color:var(--text-dim);}
+  .lib-row .scheme-mini{font-size:12px;color:var(--text-dim);flex:none;}
 
   /* ---- Pro tab ---- */
   .pro-hero{
@@ -244,6 +254,43 @@
     text-align:center;color:var(--text-dim);font-size:14px;padding:40px 10px;
   }
 
+  /* ---- Category cards (home screen) ---- */
+  .cat-card{
+    position:relative;
+    height:120px;
+    border-radius:var(--radius);
+    overflow:hidden;
+    margin-bottom:12px;
+    display:flex;align-items:flex-end;
+    padding:14px;
+    cursor:pointer;
+    border:1px solid var(--line);
+  }
+  .cat-card.hue-1{background:linear-gradient(135deg,#3a2f00,#17181a 70%);}
+  .cat-card.hue-2{background:linear-gradient(135deg,#4a1010,#17181a 70%);}
+  .cat-card.hue-3{background:linear-gradient(135deg,#123024,#17181a 70%);}
+  .cat-card.hue-4{background:linear-gradient(135deg,#1c1440,#17181a 70%);}
+  .cat-card.hue-5{background:linear-gradient(135deg,#3a1030,#17181a 70%);}
+  .cat-card h3{font-size:22px;color:#fff;font-family:'Oswald',sans-serif;}
+  .cat-badge{
+    position:absolute;top:12px;right:12px;
+    background:rgba(0,0,0,.5);color:var(--text-dim);
+    font-size:11px;padding:4px 9px;border-radius:20px;
+  }
+  .profile-box{
+    background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px;margin-bottom:16px;
+  }
+  .profile-box input{
+    width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--text);
+    border-radius:var(--radius);padding:9px;font-size:14px;margin-bottom:8px;font-family:'Inter',sans-serif;
+  }
+  .profile-summary{font-size:13px;color:var(--text-dim);margin-bottom:16px;}
+  .profile-summary a{color:var(--accent);}
+  .section-toggle{
+    text-align:center;font-size:13px;color:var(--text-dim);margin:8px 0 16px;text-decoration:underline;cursor:pointer;
+  }
+
   /* ---- Modal ---- */
   .modal-back{
     position:fixed;inset:0;background:rgba(0,0,0,.55);
@@ -285,6 +332,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/></svg>
       Pro
     </button>
+    <button data-tab="nutrition" id="navNutrition">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v20M6 2c-2 3-2 6 0 8M18 2v20M18 8h-3a3 3 0 010-6h3z"/></svg>
+      Питание
+    </button>
   </nav>
 </div>
 
@@ -311,7 +362,10 @@
   var NICHE_PRESETS = {
     home:    { title:'ЖЕЛЕЗО: Дома',    location:'home', subtitle:'Тренировки с гантелями дома' },
     gym:     { title:'ЖЕЛЕЗО: Зал',     location:'gym',  subtitle:'Программы для зала' },
-    fatloss: { title:'ЖЕЛЕЗО: Похудение', goal:'fatloss', subtitle:'Жиросжигание с гантелями' }
+    fatloss: { title:'ЖЕЛЕЗО: Похудение', goal:'fatloss', subtitle:'Жиросжигание с гантелями' },
+    women:   { title:'ЖЕЛЕЗО: Для женщин', goal:'tone', subtitle:'Тонус тела и упражнения для лица' },
+    men:     { title:'ЖЕЛЕЗО: Для мужчин', goal:'mass', subtitle:'Сила и масса' },
+    teens:   { title:'ЖЕЛЕЗО: Подросткам', goal:'mobility', subtitle:'Осанка и уверенность' }
   };
   var niche = null;
   try {
@@ -345,18 +399,82 @@
     {id:'leg_press', name:'Жим ногами в тренажёре', muscle:'Ноги', level:1, tier:'pro', sets:'3×12', goals:['mass','fatloss'], location:'gym'},
     {id:'cable_row', name:'Тяга нижнего блока', muscle:'Спина', level:1, tier:'pro', sets:'3×12', goals:['strength','tone'], location:'gym'},
     {id:'leg_curl', name:'Сгибание ног в тренажёре', muscle:'Ноги', level:1, tier:'free', sets:'3×15', goals:['tone','fatloss'], location:'gym'},
-    {id:'chest_press_machine', name:'Жим в тренажёре на грудь', muscle:'Грудь', level:1, tier:'pro', sets:'3×12', goals:['mass','tone'], location:'gym'}
+    {id:'chest_press_machine', name:'Жим в тренажёре на грудь', muscle:'Грудь', level:1, tier:'pro', sets:'3×12', goals:['mass','tone'], location:'gym'},
+    {id:'db_swing', name:'Свинг гантелью', muscle:'Ноги / Кор', level:1, tier:'free', sets:'4×15', goals:['endurance','fatloss'], location:'both'},
+    {id:'burpee_db', name:'Бёрпи с гантелями', muscle:'Всё тело', level:2, tier:'pro', sets:'4×10', goals:['endurance','fatloss'], location:'both'},
+    {id:'jump_lunge', name:'Прыжковые выпады', muscle:'Ноги', level:2, tier:'pro', sets:'3×12', goals:['agility','endurance'], location:'both'},
+    {id:'fast_feet', name:'Быстрая смена ног в упоре', muscle:'Ноги / Кор', level:1, tier:'free', sets:'3×30 сек', goals:['agility','endurance'], location:'both'},
+    {id:'figure8', name:'Гантель восьмёркой вокруг корпуса', muscle:'Кор / Координация', level:1, tier:'free', sets:'3×20', goals:['agility'], location:'both'},
+    {id:'mobility_flow', name:'Наклоны с ротацией корпуса', muscle:'Позвоночник', level:1, tier:'free', sets:'2×10', goals:['mobility'], location:'both'},
+    {id:'shoulder_mobility', name:'Круги гантелью для плеч', muscle:'Плечи / Осанка', level:1, tier:'free', sets:'2×12', goals:['mobility'], location:'both'},
+    {id:'kb_swing', name:'Свинг гирей', muscle:'Ноги / Кор', level:2, tier:'pro', sets:'4×15', goals:['endurance','strength'], location:'gym'},
+    {id:'calf_raise', name:'Подъёмы на носки с гантелями', muscle:'Икры', level:1, tier:'free', sets:'3×20', goals:['tone','endurance'], location:'both'},
+    {id:'plank', name:'Планка', muscle:'Кор', level:1, tier:'free', sets:'3×40 сек', goals:['tone','fatloss'], location:'both'},
+    {id:'hip_thrust', name:'Ягодичный мост с гантелью', muscle:'Ягодицы', level:2, tier:'pro', sets:'4×12', goals:['strength','mass','tone'], location:'both'},
+    {id:'bulgarian_split_squat', name:'Болгарские выпады', muscle:'Ноги', level:2, tier:'pro', sets:'3×10 на ногу', goals:['strength','mass'], location:'both'},
+    {id:'triceps_dips', name:'Отжимания на скамье (трицепс)', muscle:'Руки', level:2, tier:'pro', sets:'3×12', goals:['strength','mass'], location:'both'},
+    {id:'pull_up', name:'Подтягивания', muscle:'Спина', level:3, tier:'pro', sets:'3×8', goals:['strength','mass'], location:'gym'},
+    {id:'face_pull', name:'Тяга к лицу на блоке', muscle:'Плечи / Спина', level:2, tier:'pro', sets:'3×15', goals:['tone','strength'], location:'gym'},
+    {id:'front_raise', name:'Подъём гантелей перед собой', muscle:'Плечи', level:1, tier:'free', sets:'3×12', goals:['tone'], location:'both'},
+    {id:'skull_crusher', name:'Французский жим лёжа', muscle:'Руки', level:2, tier:'pro', sets:'3×10', goals:['mass'], location:'both'},
+    {id:'preacher_curl', name:'Подъём на бицепс на скамье Скотта', muscle:'Руки', level:2, tier:'pro', sets:'3×10', goals:['mass'], location:'gym'},
+    {id:'incline_db_press', name:'Жим гантелей на наклонной скамье', muscle:'Грудь', level:2, tier:'pro', sets:'3×10', goals:['mass','strength'], location:'both'},
+    {id:'leg_extension', name:'Разгибание ног в тренажёре', muscle:'Ноги', level:1, tier:'free', sets:'3×15', goals:['tone','fatloss'], location:'gym'},
+    {id:'band_pull_apart', name:'Разведение резинки перед собой', muscle:'Плечи / Спина', level:1, tier:'free', sets:'3×15', goals:['tone'], location:'bands'},
+    {id:'band_curl', name:'Сгибание рук с резинкой', muscle:'Руки', level:1, tier:'free', sets:'3×15', goals:['tone','endurance'], location:'bands'},
+    {id:'band_squat', name:'Приседания с резинкой на бёдрах', muscle:'Ноги', level:1, tier:'free', sets:'3×15', goals:['tone','fatloss'], location:'bands'},
+    {id:'band_glute_bridge', name:'Ягодичный мост с резинкой', muscle:'Ягодицы', level:1, tier:'pro', sets:'3×15', goals:['tone','strength'], location:'bands'},
+    {id:'band_lateral_walk', name:'Шаги в сторону с резинкой', muscle:'Ноги / Ягодицы', level:1, tier:'pro', sets:'3×20 шагов', goals:['tone','endurance'], location:'bands'},
+    {id:'band_row', name:'Тяга резинки к поясу', muscle:'Спина', level:1, tier:'free', sets:'3×15', goals:['tone','strength'], location:'bands'},
+    {id:'band_chest_press', name:'Жим резинки от груди', muscle:'Грудь', level:1, tier:'pro', sets:'3×15', goals:['tone','strength'], location:'bands'},
+    {id:'band_tricep_pushdown', name:'Разгибание рук с резинкой', muscle:'Руки', level:1, tier:'pro', sets:'3×15', goals:['tone'], location:'bands'},
+    {id:'band_deadlift', name:'Становая тяга с резинкой', muscle:'Ноги / Спина', level:1, tier:'pro', sets:'3×15', goals:['strength','tone'], location:'bands'},
+    {id:'band_standing_row', name:'Тяга резинки стоя к груди', muscle:'Спина / Плечи', level:1, tier:'free', sets:'3×15', goals:['tone'], location:'bands'},
+    {id:'face_eye_depuff', name:'Снятие отёков под глазами', muscle:'Лицо', region:'eyes', level:1, tier:'free', sets:'1×5 сек ×5', goals:[], location:'both'},
+    {id:'face_eye_blink', name:'Моргание с сопротивлением', muscle:'Лицо', region:'eyes', level:1, tier:'pro', sets:'3×15', goals:[], location:'both'},
+    {id:'face_cheek_fish', name:'«Рыбка» для щёк', muscle:'Лицо', region:'cheeks', level:1, tier:'free', sets:'3×15', goals:[], location:'both'},
+    {id:'face_cheek_lift', name:'Лифтинг скул пальцами', muscle:'Лицо', region:'cheeks', level:1, tier:'pro', sets:'1×10 ×5 сек', goals:[], location:'both'},
+    {id:'face_chin_fist', name:'Кулак под подбородком', muscle:'Лицо', region:'chin', level:1, tier:'pro', sets:'3×20', goals:[], location:'both'},
+    {id:'face_jaw_definer', name:'Дефинер челюсти', muscle:'Лицо', region:'chin', level:1, tier:'pro', sets:'1×10 ×5 сек', goals:[], location:'both'},
+    {id:'face_forehead', name:'Разглаживание лба', muscle:'Лицо', region:'forehead', level:1, tier:'free', sets:'2×15', goals:[], location:'both'},
+    {id:'face_jaw_contour', name:'Гимнастика для контура лица', muscle:'Лицо', region:'jaw', level:1, tier:'pro', sets:'3×20', goals:[], location:'both'},
+    {id:'face_swan_neck', name:'«Лебединая шея»', muscle:'Лицо', region:'neck', level:1, tier:'pro', sets:'1×10 ×5 сек', goals:[], location:'both'},
+    {id:'face_neck', name:'Укрепление шеи «Черепаха»', muscle:'Лицо', region:'neck', level:1, tier:'free', sets:'3×10', goals:[], location:'both'},
+    {id:'face_vowels', name:'Гласные А-Э-И-О-У', muscle:'Лицо', region:'general', level:1, tier:'free', sets:'5×10', goals:[], location:'both'},
+    {id:'face_warmup', name:'Разминка мимических мышц', muscle:'Лицо', region:'general', level:1, tier:'free', sets:'1×20', goals:[], location:'both'}
   ];
 
   var LOCATIONS = [
-    {id:'home', label:'Дома'},
-    {id:'gym', label:'В зале'}
+    {id:'home', label:'Гантели'},
+    {id:'bands', label:'Резинки'},
+    {id:'gym', label:'Всё железо'}
   ];
+  var NUTRITION_TIERS = [
+    {
+      id:'budget', label:'Бюджетный', tier:'free',
+      note:'Доступные продукты, минимум затрат',
+      meals:['Завтрак: овсянка на воде + яйца', 'Обед: гречка + курица + овощи', 'Ужин: творог + огурец', 'Перекус: банан']
+    },
+    {
+      id:'standard', label:'Стандарт', tier:'pro',
+      note:'Больше разнообразия и белка',
+      meals:['Завтрак: творог + ягоды + орехи', 'Обед: рис + рыба + салат', 'Ужин: индейка + брокколи', 'Перекус: йогурт без сахара']
+    },
+    {
+      id:'elite', label:'Элитный', tier:'pro',
+      note:'Премиум-продукты и спортпит',
+      meals:['Завтрак: авокадо-тост + лосось', 'Обед: стейк + киноа + овощи гриль', 'Ужин: креветки + спаржа', 'Перекус: протеиновый коктейль']
+    }
+  ];
+
   var GOALS = [
     {id:'strength', label:'Сила'},
     {id:'mass', label:'Масса'},
     {id:'fatloss', label:'Похудение'},
-    {id:'tone', label:'Тонус'}
+    {id:'tone', label:'Тонус'},
+    {id:'endurance', label:'Выносливость'},
+    {id:'agility', label:'Ловкость'},
+    {id:'mobility', label:'Осанка и мобильность'}
   ];
   var LEVELS = [
     {id:1, label:'Новичок'},
@@ -378,7 +496,16 @@
     duration: null,
     plan: null,
     isPro: false,
-    priceCycle: 'monthly'
+    priceCycle: 'monthly',
+    profile: null,
+    customMode: false,
+    aiUsesLeft: 2,
+    discountDeadline: null,
+    workoutLog: [],
+    weightLog: [],
+    refCode: null,
+    refBonusClaimed: false,
+    shareBonusClaimed: false
   };
 
   try {
@@ -389,7 +516,27 @@
       state.level = saved.level || null;
       state.duration = saved.duration || null;
       state.isPro = !!saved.isPro;
+      state.profile = saved.profile || null;
+      state.aiUsesLeft = (typeof saved.aiUsesLeft === 'number') ? saved.aiUsesLeft : 2;
+      state.discountDeadline = saved.discountDeadline || null;
+      state.workoutLog = saved.workoutLog || [];
+      state.weightLog = saved.weightLog || [];
+      state.refCode = saved.refCode || null;
+      state.refBonusClaimed = !!saved.refBonusClaimed;
+      state.shareBonusClaimed = !!saved.shareBonusClaimed;
     }
+    if (!state.refCode) { state.refCode = Math.random().toString(36).slice(2,8); }
+    try {
+      var refParam = new URLSearchParams(window.location.search).get('ref');
+      if (refParam && !state.refBonusClaimed) {
+        state.aiUsesLeft = (state.aiUsesLeft||0) + 1;
+        state.refBonusClaimed = true;
+        window._refWelcome = true;
+        var cleanUrl = new URL(window.location);
+        cleanUrl.searchParams.delete('ref');
+        window.history.replaceState({}, '', cleanUrl);
+      }
+    } catch(e) {}
   } catch(e) {}
 
   if (niche) {
@@ -400,9 +547,173 @@
   function persist(){
     try {
       localStorage.setItem('ironapp_state', JSON.stringify({
-        location: state.location, goal: state.goal, level: state.level, duration: state.duration, isPro: state.isPro
+        location: state.location, goal: state.goal, level: state.level, duration: state.duration, isPro: state.isPro, profile: state.profile,
+        aiUsesLeft: state.aiUsesLeft, discountDeadline: state.discountDeadline,
+        workoutLog: state.workoutLog, weightLog: state.weightLog,
+        refCode: state.refCode, refBonusClaimed: state.refBonusClaimed, shareBonusClaimed: state.shareBonusClaimed
       }));
     } catch(e) {}
+  }
+
+  var EXERCISE_TERMS = {
+    bicep_curl:'Biceps Curl', hammer_curl:'Hammer Curl', tricep_ext:'Triceps Extension',
+    shoulder_press:'Shoulder Press', lateral_raise:'Lateral Raise', bent_row:'Bent Over Row',
+    renegade_row:'Renegade Row', db_press:'Dumbbell Bench Press', db_fly:'Dumbbell Flyes',
+    goblet_squat:'Goblet Squat', lunges:'Lunge', rdl:'Romanian Deadlift', step_up:'Step Up',
+    russian_twist:'Russian Twist', woodchopper:'Woodchopper', farmer_carry:'Farmers Walk',
+    barbell_squat:'Squat', bench_press:'Bench Press', deadlift:'Deadlift',
+    lat_pulldown:'Lat Pulldown', leg_press:'Leg Press', cable_row:'Seated Cable Row',
+    leg_curl:'Leg Curl', chest_press_machine:'Chest Press Machine',
+    db_swing:'Kettlebell Swing', burpee_db:'Burpee', jump_lunge:'Jump Lunge',
+    fast_feet:'Mountain Climber', kb_swing:'Kettlebell Swing',
+    calf_raise:'Calf Raise', plank:'Plank', hip_thrust:'Hip Thrust',
+    bulgarian_split_squat:'Bulgarian Split Squat', triceps_dips:'Triceps Dips',
+    pull_up:'Pull Up', face_pull:'Face Pull', front_raise:'Front Raise',
+    skull_crusher:'Lying Triceps Extension', preacher_curl:'Preacher Curl',
+    incline_db_press:'Incline Dumbbell Press', leg_extension:'Leg Extension',
+    band_pull_apart:'Band Pull Apart', band_curl:'Band Bicep Curl', band_squat:'Band Squat',
+    band_glute_bridge:'Glute Bridge', band_lateral_walk:'Lateral Band Walk', band_row:'Seated Row',
+    band_chest_press:'Band Chest Press', band_tricep_pushdown:'Triceps Pushdown',
+    band_deadlift:'Deadlift', band_standing_row:'Standing Row'
+  };
+  var imageCache = {};
+  var imageTried = {};
+
+  function hydrateImages(list){
+    list.forEach(function(ex){
+      var term = EXERCISE_TERMS[ex.id];
+      if (!term || imageTried[ex.id]) return;
+      imageTried[ex.id] = true;
+      fetch('https://wger.de/api/v2/exercise/search/?term=' + encodeURIComponent(term) + '&language=english&format=json')
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          var hit = data && data.suggestions && data.suggestions[0];
+          var baseId = hit && hit.data && (hit.data.base_id || hit.data.id);
+          if (!baseId) return null;
+          return fetch('https://wger.de/api/v2/exerciseinfo/' + baseId + '/?format=json').then(function(r){ return r.json(); });
+        })
+        .then(function(info){
+          var imgs = info && (info.images || info.exercise_images || info.image_urls);
+          var url = imgs && imgs[0] && (imgs[0].image || imgs[0]);
+          if (!url) return;
+          imageCache[ex.id] = url;
+          var el = document.getElementById('icon-' + ex.id);
+          if (el) el.innerHTML = '<img src="' + url + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">';
+        })
+        .catch(function(){});
+    });
+  }
+
+  var CATEGORY_CARDS = [
+    {id:'home', title:'Тренировки дома', badge:'С гантелями', hue:1, goal:'tone', level:1, duration:30, location:'home'},
+    {id:'gym', title:'Тренировки в зале', badge:'Штанга и тренажёры', hue:2, goal:'strength', level:2, duration:45, location:'gym'},
+    {id:'bands', title:'Тренировки с резинками', badge:'Компактно, без веса', hue:3, goal:'tone', level:1, duration:30, location:'bands'},
+    {id:'fatloss', title:'Сбрось вес', badge:'Ежедневно', hue:3, goal:'fatloss', level:1, duration:30},
+    {id:'fullbody', title:'Всё тело', badge:'3 дня в неделю', hue:4, goal:'strength', level:2, duration:45},
+    {id:'split', title:'Полный сплит', badge:'5 дней в неделю', hue:5, goal:'mass', level:3, duration:45},
+    {id:'face', title:'Лицо', badge:'Ежедневно', hue:1, special:'face'}
+  ];
+
+  function useAiCredit(){
+    if (state.isPro) return true;
+    if (state.aiUsesLeft > 0) {
+      state.aiUsesLeft--;
+      if (state.aiUsesLeft === 0 && !state.discountDeadline) {
+        state.discountDeadline = Date.now() + 24*3600*1000;
+      }
+      persist();
+      return true;
+    }
+    openDiscountPaywall();
+    return false;
+  }
+
+  function openDiscountPaywall(){
+    var back = document.createElement('div');
+    back.className = 'modal-back';
+    back.id = 'discountModal';
+    back.innerHTML = '<div class="modal">'
+      + '<h2>Бесплатные тренировки закончились</h2>'
+      + '<p>Вы использовали обе бесплатные AI-тренировки. Успейте оформить Pro со скидкой 30% — предложение ограничено по времени:</p>'
+      + '<div style="text-align:center;font-family:\'Oswald\',sans-serif;font-size:28px;color:var(--accent);margin:14px 0;" id="discountTimer">24:00:00</div>'
+      + '<button class="btn-primary" id="discountSubscribe">Забрать Pro за 2790 ₸/мес (вместо 3990 ₸)</button>'
+      + '<button class="btn-ghost" id="discountClose">Не сейчас</button>'
+    + '</div>';
+    document.getElementById('app').appendChild(back);
+    document.getElementById('discountSubscribe').addEventListener('click', function(){
+      state.isPro = true;
+      persist();
+      clearInterval(window._discountTick);
+      back.remove();
+      render();
+    });
+    document.getElementById('discountClose').addEventListener('click', function(){
+      clearInterval(window._discountTick);
+      back.remove();
+    });
+    function tick(){
+      var left = state.discountDeadline - Date.now();
+      var el = document.getElementById('discountTimer');
+      if (!el) { clearInterval(window._discountTick); return; }
+      if (left <= 0) { el.textContent = '00:00:00'; clearInterval(window._discountTick); return; }
+      var h = Math.floor(left/3600000);
+      var m = Math.floor((left%3600000)/60000);
+      var s = Math.floor((left%60000)/1000);
+      el.textContent = [h,m,s].map(function(n){ return String(n).padStart(2,'0'); }).join(':');
+    }
+    tick();
+    window._discountTick = setInterval(tick, 1000);
+  }
+
+  function computeStreak(){
+    var set = {};
+    (state.workoutLog||[]).forEach(function(d){ set[d]=true; });
+    var d = new Date();
+    var todayStr = d.toISOString().slice(0,10);
+    if (!set[todayStr]) d.setDate(d.getDate()-1);
+    var streak = 0;
+    while (true) {
+      var s = d.toISOString().slice(0,10);
+      if (set[s]) { streak++; d.setDate(d.getDate()-1); } else break;
+    }
+    return streak;
+  }
+
+  function beep(){
+    try {
+      var ctx = new (window.AudioContext||window.webkitAudioContext)();
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.2, ctx.currentTime);
+      o.start(); o.stop(ctx.currentTime+0.3);
+    } catch(e) {}
+  }
+
+  function startRestTimer(btn){
+    if (btn._running) return;
+    btn._running = true;
+    var t = 60;
+    btn.textContent = '⏱ ' + t + ' сек';
+    var iv = setInterval(function(){
+      t--;
+      if (t <= 0) { clearInterval(iv); btn.textContent = '⏱ Таймер отдыха 60 сек'; btn._running = false; beep(); }
+      else btn.textContent = '⏱ ' + t + ' сек';
+    }, 1000);
+  }
+
+  function weightChartSvg(){
+    var log = state.weightLog || [];
+    if (log.length < 2) return '';
+    var w=280, h=56, pad=6;
+    var weights = log.map(function(e){ return parseFloat(e.weight); });
+    var min = Math.min.apply(null, weights), max = Math.max.apply(null, weights);
+    if (min === max) { min -= 1; max += 1; }
+    var pts = log.map(function(e,i){
+      var x = pad + i*(w-2*pad)/(log.length-1);
+      var y = h-pad - (parseFloat(e.weight)-min)/(max-min)*(h-2*pad);
+      return x+','+y;
+    }).join(' ');
+    return '<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:56px;margin-top:6px;"><polyline points="'+pts+'" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>';
   }
 
   function dumbbellSvg(){
@@ -439,8 +750,8 @@
   // ---------- render ----------
   function render(){
     document.getElementById('proStatus').textContent = state.isPro ? 'Pro' : 'Free';
-    document.getElementById('subtitle').textContent = niche ? niche.subtitle : 'дом и зал';
-    ['navWorkout','navLibrary','navPro'].forEach(function(id){
+    document.getElementById('subtitle').textContent = niche ? niche.subtitle : '🤖 твой личный AI-тренер';
+    ['navWorkout','navLibrary','navPro','navNutrition'].forEach(function(id){
       document.getElementById(id).classList.remove('active');
     });
     document.getElementById('nav' + state.tab.charAt(0).toUpperCase() + state.tab.slice(1)).classList.add('active');
@@ -448,14 +759,45 @@
     var main = document.getElementById('main');
     if (state.tab === 'workout') main.innerHTML = renderWorkoutTab();
     else if (state.tab === 'library') main.innerHTML = renderLibraryTab();
+    else if (state.tab === 'nutrition') main.innerHTML = renderNutritionTab();
     else main.innerHTML = renderProTab();
+
+    if (state.tab === 'workout' && state.plan) hydrateImages(state.plan);
+    if (state.tab === 'library') hydrateImages(EXERCISES);
 
     bindEvents();
   }
 
   function renderWorkoutTab(){
     if (!state.plan) {
-      return ''
+      var profileHtml;
+      if (!state.profile) {
+        profileHtml = '<div class="profile-box">'
+          + '<input type="number" id="pfAge" placeholder="Возраст">'
+          + '<input type="number" id="pfHeight" placeholder="Рост, см">'
+          + '<input type="number" id="pfWeight" placeholder="Вес, кг">'
+          + '<button class="btn-primary" id="saveProfileBtn" style="margin-top:0;">Сохранить профиль</button>'
+        + '</div>';
+      } else {
+        profileHtml = '<div class="profile-summary">'+state.profile.age+' лет · '+state.profile.height+' см · '+state.profile.weight+' кг — <a id="editProfileLink">изменить</a>'
+          + weightChartSvg()
+          + '<div><a id="logWeightLink" style="font-size:12px;">+ записать вес сегодня</a></div>'
+        + '</div>';
+      }
+
+      if (!state.customMode) {
+        var streak = computeStreak();
+        var usesHtml = (state.isPro ? '' : '<div class="profile-summary">🤖 Бесплатных AI-тренировок осталось: <b style="color:var(--accent)">'+state.aiUsesLeft+' из 2</b></div>')
+          + (streak > 0 ? '<div class="profile-summary">🔥 Стрик: <b style="color:var(--accent)">'+streak+' дней подряд</b></div>' : '');
+        return profileHtml
+          + usesHtml
+          + CATEGORY_CARDS.map(function(c){
+              return '<div class="cat-card hue-'+c.hue+'" data-card="'+c.id+'"><span class="cat-badge">'+c.badge+'</span><h3>'+c.title+'</h3></div>';
+            }).join('')
+          + '<div class="section-toggle" id="customModeBtn">Своя тренировка (цель, уровень, время) →</div>';
+      }
+
+      return profileHtml
       + '<div class="step-label">Где тренируетесь</div>'
       + '<div class="chips" data-group="location">'
         + LOCATIONS.map(function(l){ return chip(l.id, l.label, state.location); }).join('')
@@ -479,6 +821,7 @@
     + '<div class="plan-head"><h2>Ваша тренировка</h2><span class="meta">'+state.plan.length+' упражнений</span></div>'
     + state.plan.map(renderCard).join('')
     + (lockedInPlan ? '<button class="btn-primary" id="unlockAllBtn">Открыть все упражнения — Pro</button>' : '')
+    + '<button class="btn-primary" id="finishWorkoutBtn">✅ Завершить тренировку</button>'
     + '<button class="btn-ghost" id="regenBtn">Составить заново</button>';
   }
 
@@ -494,15 +837,26 @@
     var locked = ex.tier === 'pro' && !state.isPro;
     return ''
     + '<div class="card'+(locked?' locked':'')+'">'
-      + '<div class="icon">'+dumbbellSvg()+'</div>'
+      + '<div class="icon" id="icon-'+ex.id+'">'+(imageCache[ex.id] ? '<img src="'+imageCache[ex.id]+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">' : dumbbellSvg())+'</div>'
       + '<div class="body">'
         + '<h3>'+ex.name+(ex.tier==='pro'?'<span class="badge-pro">PRO</span>':'')+'</h3>'
         + '<div class="muscle">'+ex.muscle+'</div>'
         + '<div class="scheme">'+ex.sets+'</div>'
+        + '<button class="btn-ghost" style="margin-top:8px;padding:6px 10px;font-size:12px;width:auto;" data-timer="'+ex.id+'">⏱ Таймер отдыха 60 сек</button>'
       + '</div>'
       + (locked ? '<div class="lock-overlay"><button class="lock-btn" data-open-pro="1">🔒 Открыть</button></div>' : '')
     + '</div>';
   }
+
+  var MUSCLE_ICONS = {
+    'Руки':'💪', 'Плечи':'🤸', 'Спина':'🔙', 'Спина / Кор':'🔙', 'Плечи / Спина':'🔙', 'Грудь':'🫁',
+    'Ноги':'🦵', 'Ноги / Ягодицы':'🦵', 'Ягодицы':'🍑', 'Икры':'🦵', 'Кор':'🧘', 'Кор / Хват':'🧘', 'Всё тело':'🔥',
+    'Кор / Координация':'🧘', 'Позвоночник':'🧘', 'Плечи / Осанка':'🧘', 'Спина / Плечи':'🔙', 'Лицо':'😊'
+  };
+  var FACE_REGIONS = {
+    eyes:'👁️ Отёки под глазами', cheeks:'😊 Скулы', chin:'🎯 Второй подбородок',
+    forehead:'📏 Лоб и морщины', jaw:'📐 Овал лица', neck:'🦢 Шея', general:'🌀 Разминка'
+  };
 
   function renderLibraryTab(){
     var byMuscle = {};
@@ -510,34 +864,56 @@
       byMuscle[ex.muscle] = byMuscle[ex.muscle] || [];
       byMuscle[ex.muscle].push(ex);
     });
+
+    function rowHtml(ex){
+      return '<div class="lib-row">'
+        + '<div class="icon-sm" id="icon-'+ex.id+'">'+(imageCache[ex.id] ? '<img src="'+imageCache[ex.id]+'" alt="" style="width:100%;height:100%;object-fit:cover;">' : dumbbellSvg())+'</div>'
+        + '<div class="lib-info"><div class="name">'+ex.name+(ex.tier==='pro'?'<span class="badge-pro">PRO</span>':'')+'</div></div>'
+        + '<div class="scheme-mini">'+ex.sets+'</div>'
+      + '</div>';
+    }
+
     return Object.keys(byMuscle).map(function(m){
-      return '<div class="lib-group"><h3>'+m+'</h3>'
-        + byMuscle[m].map(function(ex){
-          return '<div class="lib-row">'
-            + '<div><div class="name">'+ex.name+(ex.tier==='pro'?'<span class="badge-pro">PRO</span>':'')+'</div></div>'
-            + '<div class="scheme-mini">'+ex.sets+'</div>'
-          + '</div>';
-        }).join('')
+      if (m === 'Лицо') {
+        var byRegion = {};
+        byMuscle[m].forEach(function(ex){
+          var r = ex.region || 'general';
+          byRegion[r] = byRegion[r] || [];
+          byRegion[r].push(ex);
+        });
+        return '<div class="lib-group"><h3>😊 Лицо</h3>'
+          + Object.keys(FACE_REGIONS).filter(function(r){ return byRegion[r]; }).map(function(r){
+            return '<div style="margin:10px 0 4px;font-size:12px;color:var(--text-dim);">'+FACE_REGIONS[r]+'</div>'
+              + byRegion[r].map(rowHtml).join('');
+          }).join('')
+        + '</div>';
+      }
+      return '<div class="lib-group"><h3>'+(MUSCLE_ICONS[m]||'🏋️')+' '+m+'</h3>'
+        + byMuscle[m].map(rowHtml).join('')
       + '</div>';
     }).join('');
   }
 
   function renderProTab(){
+    var shareBlock = '<div class="profile-box">'
+      + '<div style="font-size:14px;margin-bottom:10px;">Пригласи друга — ему +1 бесплатная AI-тренировка, и тебе тоже +1 в подарок</div>'
+      + '<button class="btn-primary" id="shareBtn" style="margin-top:0;">📤 Поделиться приложением</button>'
+    + '</div>';
     if (state.isPro) {
-      return '<div class="pro-hero"><h2>Вы на Pro</h2><p>Вся библиотека упражнений и программы открыты.</p></div>'
+      return shareBlock + '<div class="pro-hero"><h2>Вы на Pro</h2><p>Вся библиотека упражнений и программы открыты.</p></div>'
         + '<button class="btn-ghost" id="cancelProBtn">Отменить Pro (демо)</button>';
     }
-    return ''
+    return shareBlock + ''
     + '<div class="pro-hero">'
       + '<h2>Полный доступ</h2>'
       + '<p>Все упражнения, безлимитные программы под любую цель.</p>'
     + '</div>'
     + '<div class="price-row">'
       + '<div class="price-card'+(state.priceCycle==='monthly'?' selected':'')+'" data-cycle="monthly">'
-        + '<div class="period">Помесячно</div><div class="price">499 ₸/мес</div>'
+        + '<div class="period">Помесячно</div><div class="price">3990 ₸/мес</div>'
       + '</div>'
       + '<div class="price-card'+(state.priceCycle==='yearly'?' selected':'')+'" data-cycle="yearly">'
-        + '<div class="period">На год</div><div class="price">3990 ₸/год</div><div class="save">Экономия 33%</div>'
+        + '<div class="period">На год</div><div class="price">31990 ₸/год</div><div class="save">Экономия 33%</div>'
       + '</div>'
     + '</div>'
     + '<ul class="pro-list">'
@@ -549,7 +925,66 @@
     + '<div class="demo-note">Демо-версия: оплата не подключена. Здесь позже будет Google Play Billing.</div>';
   }
 
+  function renderNutritionTab(){
+    return '<div class="plan-head"><h2>Питание</h2><span class="meta">3 варианта</span></div>'
+    + NUTRITION_TIERS.map(function(t){
+      var locked = t.tier === 'pro' && !state.isPro;
+      return '<div class="card'+(locked?' locked':'')+'" style="flex-direction:column;align-items:stretch;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+          + '<h3 style="font-size:16px;">'+t.label+(t.tier==='pro'?'<span class="badge-pro">PRO</span>':'')+'</h3>'
+        + '</div>'
+        + '<div class="muscle" style="margin-bottom:8px;">'+t.note+'</div>'
+        + '<div class="scheme">'+t.meals.join('<br>')+'</div>'
+        + (locked ? '<div class="lock-overlay"><button class="lock-btn" data-open-pro="1">🔒 Открыть</button></div>' : '')
+      + '</div>';
+    }).join('');
+  }
+
   function bindEvents(){
+    var saveProfileBtn = document.getElementById('saveProfileBtn');
+    if (saveProfileBtn) saveProfileBtn.addEventListener('click', function(){
+      var age = document.getElementById('pfAge').value;
+      var height = document.getElementById('pfHeight').value;
+      var weight = document.getElementById('pfWeight').value;
+      if (!age || !height || !weight) return;
+      state.profile = { age: age, height: height, weight: weight };
+      var today0 = new Date().toISOString().slice(0,10);
+      state.weightLog.push({date: today0, weight: parseFloat(weight)});
+      persist();
+      render();
+    });
+    var editProfileLink = document.getElementById('editProfileLink');
+    if (editProfileLink) editProfileLink.addEventListener('click', function(){
+      state.profile = null;
+      persist();
+      render();
+    });
+    var customModeBtn = document.getElementById('customModeBtn');
+    if (customModeBtn) customModeBtn.addEventListener('click', function(){
+      state.customMode = true;
+      render();
+    });
+    document.querySelectorAll('.cat-card').forEach(function(card){
+      card.addEventListener('click', function(){
+        var id = card.getAttribute('data-card');
+        var c = CATEGORY_CARDS.filter(function(x){ return x.id === id; })[0];
+        if (!c) return;
+        if (c.special === 'face') {
+          state.plan = EXERCISES.filter(function(ex){ return ex.muscle === 'Лицо'; });
+          persist();
+          render();
+          return;
+        }
+        if (!useAiCredit()) { render(); return; }
+        state.location = c.location || state.location || 'home';
+        state.goal = c.goal;
+        state.level = c.level;
+        state.duration = c.duration;
+        state.plan = generatePlan();
+        persist();
+        render();
+      });
+    });
     document.querySelectorAll('.chips').forEach(function(group){
       group.addEventListener('click', function(e){
         var btn = e.target.closest('.chip');
@@ -563,6 +998,7 @@
     });
     var genBtn = document.getElementById('genBtn');
     if (genBtn) genBtn.addEventListener('click', function(){
+      if (!useAiCredit()) { render(); return; }
       state.plan = generatePlan();
       render();
     });
@@ -589,6 +1025,50 @@
       persist();
       render();
     });
+    document.querySelectorAll('[data-timer]').forEach(function(btn){
+      btn.addEventListener('click', function(){ startRestTimer(btn); });
+    });
+    var finishWorkoutBtn = document.getElementById('finishWorkoutBtn');
+    if (finishWorkoutBtn) finishWorkoutBtn.addEventListener('click', function(){
+      var today = new Date().toISOString().slice(0,10);
+      if (state.workoutLog.indexOf(today) === -1) state.workoutLog.push(today);
+      state.plan = null;
+      persist();
+      render();
+    });
+    var logWeightLink = document.getElementById('logWeightLink');
+    if (logWeightLink) logWeightLink.addEventListener('click', function(){
+      var val = window.prompt('Текущий вес, кг:', state.profile ? state.profile.weight : '');
+      var num = parseFloat(val);
+      if (!num) return;
+      var today = new Date().toISOString().slice(0,10);
+      var existing = state.weightLog.filter(function(e){ return e.date === today; })[0];
+      if (existing) existing.weight = num; else state.weightLog.push({date: today, weight: num});
+      if (state.profile) state.profile.weight = num;
+      persist();
+      render();
+    });
+    var shareBtn = document.getElementById('shareBtn');
+    if (shareBtn) shareBtn.addEventListener('click', function(){
+      var url = window.location.origin + window.location.pathname + '?ref=' + state.refCode;
+      var claim = function(){
+        if (!state.shareBonusClaimed) {
+          state.aiUsesLeft = (state.aiUsesLeft||0) + 1;
+          state.shareBonusClaimed = true;
+          persist();
+        }
+      };
+      if (navigator.share) {
+        navigator.share({ title: 'ЖЕЛЕЗО AI', text: 'Попробуй эту фитнес-программу', url: url }).then(claim).catch(function(){});
+      } else {
+        try {
+          navigator.clipboard.writeText(url);
+          shareBtn.textContent = 'Ссылка скопирована!';
+          setTimeout(function(){ shareBtn.textContent = '📤 Поделиться приложением'; }, 2000);
+        } catch(e) {}
+        claim();
+      }
+    });
     document.querySelectorAll('.price-card').forEach(function(c){
       c.addEventListener('click', function(){
         state.priceCycle = c.getAttribute('data-cycle');
@@ -604,7 +1084,7 @@
     back.innerHTML = '<div class="modal">'
       + '<h2>Это упражнение — в Pro</h2>'
       + '<p>Откройте всю библиотеку и безлимитные программы.</p>'
-      + '<button class="btn-primary" id="paywallSubscribe">Оформить Pro — 499 ₸/мес</button>'
+      + '<button class="btn-primary" id="paywallSubscribe">Оформить Pro — 3990 ₸/мес</button>'
       + '<button class="btn-ghost" id="paywallClose">Не сейчас</button>'
     + '</div>';
     document.getElementById('app').appendChild(back);
@@ -629,6 +1109,16 @@
   });
 
   render();
+
+  if (window._refWelcome) {
+    setTimeout(function(){
+      var t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:70px;left:16px;right:16px;background:var(--accent);color:var(--accent-ink);padding:12px 14px;border-radius:8px;font-size:13px;font-weight:600;z-index:60;text-align:center;';
+      t.textContent = '🎁 Друг пригласил вас — +1 бесплатная AI-тренировка!';
+      document.getElementById('app').appendChild(t);
+      setTimeout(function(){ t.remove(); }, 4000);
+    }, 300);
+  }
 })();
 </script>
 </body>
